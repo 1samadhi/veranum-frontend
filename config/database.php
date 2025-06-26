@@ -6,7 +6,7 @@ class Database {
         if (!self::$pdo) {
             // --- CONFIGURACIÓN ---
             // Cambia la variable $modo a 'docker' o 'laragon' según el entorno que uses
-            $modo = 'docker'; // 'docker' o 'laragon'
+            $modo = 'laragon'; // 'docker' o 'laragon'
 
             if ($modo === 'docker') {
                 // Configuración para Docker

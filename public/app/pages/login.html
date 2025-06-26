@@ -3,36 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <title>Iniciar Sesión – Veranum</title>
-  <link href="/app/assets/css/tailwind.css" rel="stylesheet">
+  <!-- Tailwind CDN (por si no está activo el local) -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Tailwind local -->
+  <link href="../assets/css/tailwind.css" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; }
+  </style>
 </head>
-<body class="min-h-screen bg-gray-100 flex items-center justify-center">
-  <div class="w-full max-w-sm bg-white p-6 rounded-lg shadow">
-    <h1 class="text-xl font-semibold mb-4 text-center">Veranum Hotel</h1>
-    <form id="login-form" class="space-y-4">
-      <div>
-        <label for="email" class="block text-sm font-medium">Email</label>
-        <input id="email" type="email" required
-               class="mt-1 w-full px-3 py-2 border rounded">
-      </div>
-      <div>
-        <label for="password" class="block text-sm font-medium">Contraseña</label>
-        <input id="password" type="password" required
-               class="mt-1 w-full px-3 py-2 border rounded">
-      </div>
-      <button type="submit"
-              class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
-        Entrar
-      </button>
-    </form>
-    <p class="mt-4 text-center text-sm">
-      ¿No tienes cuenta?
-      <a href="register.html" class="text-indigo-600 hover:underline">
-        Regístrate
-      </a>
-    </p>
-  </div>
-
+<body class="min-h-screen bg-black flex flex-col">
+  <!-- Navbar -->
+  <nav class="bg-black bg-opacity-95 shadow-md py-4 px-8 flex flex-col md:flex-row md:justify-between md:items-center">
+    <a href="index.html" class="text-2xl font-bold tracking-wide mb-2 md:mb-0" style="color: #bfa14a; text-decoration: none;">Veranum Hotel</a>
+    <div class="flex flex-col md:flex-row w-full md:w-auto gap-2 md:gap-0 md:items-center md:justify-end">
+      <a href="login.html" class="font-semibold md:mx-2 hover:text-yellow-300 w-full md:w-auto text-center" style="color: #bfa14a;">Iniciar Sesión</a>
+      <a href="register.html" class="text-white hover:text-yellow-400 font-semibold md:mx-2 w-full md:w-auto text-center">Crear Cuenta</a>
+      <a href="index.html#contacto" class="md:ml-4 px-4 py-2 rounded-lg font-semibold transition border-2 border-black hover:opacity-90 w-full md:w-auto text-center" style="background-color: #bfa14a; color: #222;">Contacto</a>
+    </div>
+  </nav>
+  <!-- Login Form -->
+  <main class="flex-1 flex items-center justify-center py-12 px-4">
+    <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-2xl border-4" style="border-color: #bfa14a;">
+      <h1 class="text-2xl font-bold mb-6 text-center" style="color: #bfa14a;">Iniciar Sesión</h1>
+      <form id="login-form" class="space-y-5">
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input id="email" type="email" required
+                 class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+          <input id="password" type="password" required
+                 class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        </div>
+        <button type="submit"
+                class="w-full py-2 rounded-lg font-semibold text-lg shadow transition border-2 border-black hover:opacity-90"
+                style="background-color: #bfa14a; color: #222;">Entrar</button>
+      </form>
+      <p class="mt-6 text-center text-sm">
+        ¿No tienes cuenta?
+        <a href="register.html" class="font-semibold" style="color: #bfa14a;">Regístrate</a>
+      </p>
+    </div>
+  </main>
+  <!-- Footer -->
+  <footer class="bg-black py-6 mt-0">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+      <span class="text-white text-sm">&copy; 2025 Veranum Hotel. Todos los derechos reservados.</span>
+      <span class="text-sm mt-2 md:mt-0" style="color: #bfa14a;">Profe ponganos un 7 porfa</span>
+    </div>
+  </footer>
   <script src="/app/js/api.js"></script>
   <script src="/app/js/auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        email: form.email.value.trim(),
+        password: form.password.value
+      };
+      // Limpia errores previos
+      let errorMsg = document.getElementById('error-login');
+      if (!errorMsg) {
+        errorMsg = document.createElement('p');
+        errorMsg.id = 'error-login';
+        errorMsg.className = 'text-red-600 mb-4 text-center';
+        form.insertBefore(errorMsg, form.querySelector('button'));
+      }
+      errorMsg.textContent = '';
+      errorMsg.classList.add('hidden');
+      try {
+        const res = await fetch('../api.php?api=login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (json.ok) {
+          // Guarda el usuario en localStorage (puedes guardar más info si lo deseas)
+          localStorage.setItem('user', JSON.stringify({
+            id: json.id,
+            email: data.email,
+            role: json.role
+          }));
+          Swal.fire({
+            title: '¡Bienvenido!',
+            text: 'Inicio de sesión exitoso.',
+            icon: 'success',
+            confirmButtonText: 'Continuar'
+          }).then(() => {
+            window.location.href = 'index.html';
+          });
+        } else {
+          errorMsg.textContent = json.error || 'Email o contraseña incorrectos.';
+          errorMsg.classList.remove('hidden');
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Error de conexión.';
+        errorMsg.classList.remove('hidden');
+      }
+    });
+  </script>
 </body>
 </html>
